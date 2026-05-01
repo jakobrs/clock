@@ -1,15 +1,14 @@
 import "./Icon.qml"
 import QtQuick
-import QtQuick
 import QtQuick.Layouts
-import QtQuick.Controls
-import QtQuick.Effects
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Services.Pipewire
 import Quickshell.Services.Mpris
 import Quickshell.Services.UPower
 import Quickshell.Hyprland
+
+pragma ComponentBehaviour: Bound
 
 PanelWindow {
     anchors.top: true
@@ -26,8 +25,8 @@ PanelWindow {
     readonly property string bg_acc: "#2a2a40"
     readonly property string bg_acc1: "#36364a"
 
-    readonly property bool critical: UPower.onBattery && bat.percentage <= 0.15
-    readonly property bool charging: bat.changeRate > 0 && bat.percentage <= 0.95
+    readonly property bool critical: UPower.onBattery && bat.percentage <= 0.152
+    readonly property bool charging: bat.changeRate > 10 && bat.percentage <= 0.952
     readonly property UPowerDevice bat: UPower.displayDevice
 
     property string shownTab: "collapsed"
@@ -37,7 +36,7 @@ PanelWindow {
 
     component BatteryIcon: Icon {
         radius: 15
-        color: critical ? "#d90030" : charging ? "#0aa530" : bg_acc
+        color: root.critical ? "#d90030" : root.charging ? "#0aa530" : root.bg_acc
 
         text: {
             const A = [
@@ -50,7 +49,7 @@ PanelWindow {
             return A[Math.round(4 * bat.percentage)];
         }
     }
-    
+
     color: "transparent"
 
     mask: Region {
@@ -59,28 +58,28 @@ PanelWindow {
 
     HyprlandFocusGrab {
         windows: [root]
-        active: expanded
+        active: root.expanded
 
         onCleared: {
-            shownTab = "collapsed"
+            root.shownTab = "collapsed"
         }
     }
 
     ClippingRectangle {
         id: island
-        
+
         radius: 20
-        color: bg
+        color: root.bg
         anchors.horizontalCenter: parent.horizontalCenter
 
-        height: expanded ? expandedContents.implicitHeight : collapsedContents.implicitHeight
-        width: expanded ? expandedContents.implicitWidth : collapsedContents.implicitWidth
+        height: root.expanded ? expandedContents.implicitHeight : collapsedContents.implicitHeight
+        width: root.expanded ? expandedContents.implicitWidth : collapsedContents.implicitWidth
 
-        focus: expanded
+        focus: root.expanded
 
         Keys.onPressed: (event) => {
             if (event.key == Qt.Key_Escape) {
-                shownTab = "collapsed"
+                root.shownTab = "collapsed"
             }
         }
 
@@ -100,7 +99,7 @@ PanelWindow {
         Item {
             id: collapsedContents
             anchors.centerIn: parent
-            visible: collapsed
+            visible: root.collapsed
             implicitWidth: 200
             implicitHeight: 40
 
@@ -115,7 +114,7 @@ PanelWindow {
                 anchors.leftMargin: 10
 
                 text: "0"
-                color: bg_acc
+                color: root.bg_acc
                 textColor: "#d0d0e0"
                 radius: 15
                 font: ""
@@ -146,7 +145,7 @@ PanelWindow {
             anchors.centerIn: parent
             id: expandedContents
 
-            visible: shownTab == "controls"
+            visible: root.shownTab == "controls"
 
             GridLayout {
                 id: grid
@@ -159,13 +158,13 @@ PanelWindow {
                     implicitWidth: 120
                     implicitHeight: 120
                     radius: 15
-                    color: bg_acc
+                    color: root.bg_acc
 
                     Icon {
                         x: 20
                         y: 20
                         radius: 18
-                        color: bg_acc1
+                        color: root.bg_acc1
                         text: ""
                         id: wifi_status_icon
                         inverted: true
@@ -186,7 +185,7 @@ PanelWindow {
                     implicitWidth: 120
                     implicitHeight: 120
                     radius: 15
-                    color: bg_acc
+                    color: root.bg_acc
 
                     BatteryIcon {
                         x: 20
@@ -199,7 +198,7 @@ PanelWindow {
                         anchors.bottom: parent.bottom
                         anchors.bottomMargin: 20
 
-                        text: Math.round(bat.percentage * 100) + "%"
+                        text: Math.round(root.bat.percentage * 100) + "%"
                         font.pixelSize: 16
                         color: "white"
                     }
@@ -218,7 +217,7 @@ PanelWindow {
                     ClippingRectangle {
                         implicitWidth: 60
                         implicitHeight: 120 * 2 + 20
-                        color: bg_acc
+                        color: root.bg_acc
                         radius: 15
 
                         ClippingRectangle {
@@ -227,7 +226,7 @@ PanelWindow {
                             anchors.right: parent.right
 
                             implicitHeight: (Pipewire.defaultAudioSink?.audio.volume ?? 0) * parent.height
-                            
+
                             color: "white"
 
                             Text {
@@ -235,7 +234,7 @@ PanelWindow {
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 anchors.bottomMargin: 10
                                 text: "\uf028"
-                                color: bg_acc
+                                color: root.bg_acc
                                 font.pixelSize: 16
                                 font.family: root.iconFont
                             }
@@ -252,12 +251,12 @@ PanelWindow {
                         }
                     }
                 }
-                
+
                 Rectangle {
                     implicitWidth: 120 * 2 + 20
                     implicitHeight: 120
                     radius: 14
-                    color: bg_acc
+                    color: root.bg_acc
 
                     Layout.columnSpan: 2
 
@@ -300,8 +299,8 @@ PanelWindow {
                             WrapperMouseArea {
                                 Icon {
                                     radius: 20
-                                    color: bg_acc1
-                                    text: mpris_ctl.player().isPlaying ? "\uf04c" : "\uf04b"
+                                    color: root.bg_acc1
+                                    text: mpris_ctl.player()?.isPlaying ? "\uf04c" : "\uf04b"
                                 }
 
                                 onClicked: {
@@ -312,7 +311,7 @@ PanelWindow {
                             WrapperMouseArea {
                                 Icon {
                                     radius: 20
-                                    color: bg_acc1
+                                    color: root.bg_acc1
                                     text: "\uf101"
                                 }
 
@@ -329,13 +328,13 @@ PanelWindow {
 
     MouseArea {
         anchors.fill: island
-        enabled: collapsed
-        visible: collapsed
+        enabled: root.collapsed
+        visible: root.collapsed
 
         cursorShape: Qt.PointingHandCursor
 
         onClicked: {
-            shownTab = "controls"
+            root.shownTab = "controls"
         }
     }
 

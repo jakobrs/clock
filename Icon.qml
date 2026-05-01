@@ -5,7 +5,6 @@ WrapperItem {
     id: icon_root
 
     required property string text
-    required property int extraMargin
     required property string color
     required property int radius
     property bool inverted: false
