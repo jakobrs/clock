@@ -167,6 +167,7 @@ PanelWindow {
 
                     MouseArea {
                         anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
 
                         onClicked: {
                             root.shownTab = "notifications"
@@ -260,6 +261,8 @@ PanelWindow {
                     WrapperMouseArea {
                         Layout.rowSpan: 2
 
+                        cursorShape: pressed ? Qt.SizeVerCursor : Qt.PointingHandCursor
+
                         onClicked: {
                             Pipewire.defaultAudioSink.audio.volume = (height - mouseY) / height;
                         }
@@ -347,6 +350,8 @@ PanelWindow {
                                 spacing: 20
 
                                 WrapperMouseArea {
+                                    cursorShape: Qt.PointingHandCursor
+
                                     Icon {
                                         radius: 20
                                         color: root.bg_acc1
@@ -359,6 +364,8 @@ PanelWindow {
                                 }
 
                                 WrapperMouseArea {
+                                    cursorShape: Qt.PointingHandCursor
+
                                     Icon {
                                         radius: 20
                                         color: root.bg_acc1
@@ -371,6 +378,8 @@ PanelWindow {
                                 }
 
                                 WrapperMouseArea {
+                                    cursorShape: Qt.PointingHandCursor
+
                                     Icon {
                                         radius: 20
                                         color: root.bg_acc1
