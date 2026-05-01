@@ -102,7 +102,7 @@ PanelWindow {
         enabled: false
         visible: enabled
 
-        property Timer disable_timer: Timer {
+        readonly property Timer disable_timer: Timer {
             interval: 500
             onTriggered: volume_mini_display.enabled = false
         }
