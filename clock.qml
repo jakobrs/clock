@@ -17,14 +17,25 @@ PanelWindow {
     anchors.top: true
     anchors.left: true
     anchors.right: true
-    exclusionMode: ExclusionMode.Ignore
+    //exclusionMode: ExclusionMode.Ignore
     implicitHeight: 400
     margins.top: 5
 
+    exclusiveZone: 40
+
     readonly property string iconFont: "Font Awesome 7 Free Solid"
-    readonly property string bg: "#1a1a23"
-    readonly property string bg_acc: "#2a2a40"
-    readonly property string bg_acc1: "#36364a"
+
+    // readonly property string fg: "white"
+    // readonly property string fg_muted: "#d0d0e0"
+    // readonly property string bg: "#1a1a23"
+    // readonly property string bg_acc: "#2a2a40"
+    // readonly property string bg_acc1: "#36364a"
+
+    property string fg: "black"
+    property string fg_muted: "black"
+    property string bg: "#b3bac7"
+    property string bg_acc: "#d1d8e6"
+    property string bg_acc1: "#e6eeff"
 
     property string shownTab: "collapsed"
 
@@ -150,7 +161,7 @@ PanelWindow {
                     readonly property int count: notifications.trackedNotifications.values.length
                     text: count
                     color: root.bg_acc
-                    textColor: "#d0d0e0"
+                    textColor: root.fg_muted
                     radius: 15
                     font: ""
 
@@ -169,7 +180,7 @@ PanelWindow {
 
                     Text {
                         font.pixelSize: 15
-                        color: "white"
+                        color: root.fg
 
                         text: Qt.formatDateTime(clock.date, "HH:mm")
                     }
@@ -216,7 +227,7 @@ PanelWindow {
                             anchors.bottomMargin: 20
 
                             font.pixelSize: 16
-                            color: "white"
+                            color: root.fg
                             text: "eduroam"
                         }
                     }
@@ -242,7 +253,7 @@ PanelWindow {
 
                             text: Math.round(UPower.displayDevice.percentage * 100) + "%"
                             font.pixelSize: 16
-                            color: "white"
+                            color: root.fg
                         }
                     }
 
@@ -269,7 +280,7 @@ PanelWindow {
 
                                 implicitHeight: (Pipewire.defaultAudioSink?.audio.volume ?? 0) * parent.height
 
-                                color: "white"
+                                color: root.fg
 
                                 Text {
                                     anchors.bottom: parent.bottom
@@ -286,7 +297,7 @@ PanelWindow {
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 anchors.bottomMargin: 10
                                 text: "\uf028"
-                                color: "white"
+                                color: root.fg
                                 z: -1
                                 font.pixelSize: 16
                                 font.family: root.iconFont
@@ -322,7 +333,7 @@ PanelWindow {
                             font.pixelSize: 16
                             y: 20
                             anchors.horizontalCenter: parent.horizontalCenter
-                            color: "white"
+                            color: root.fg
                         }
 
                         WrapperItem {
@@ -338,7 +349,7 @@ PanelWindow {
                                 WrapperMouseArea {
                                     Icon {
                                         radius: 20
-                                        color: "#36364a"
+                                        color: root.bg_acc1
                                         text: "\uf100"
                                     }
 
@@ -388,7 +399,7 @@ PanelWindow {
 
                     text: "No notifications :)"
 
-                    color: "white"
+                    color: root.fg
                     font.pixelSize: 20
                 }
 
@@ -428,14 +439,14 @@ PanelWindow {
                                 anchors.margins: 10
 
                                 Text {
-                                    color: "white"
+                                    color: root.fg
                                     font.pixelSize: 18
 
                                     text: deleg.modelData.summary
                                 }
 
                                 Text {
-                                    color: "white"
+                                    color: root.fg
                                     text: deleg.modelData.body
                                 }
                             }

@@ -8,7 +8,7 @@ WrapperItem {
     required property string color
     required property int radius
     property bool inverted: false
-    property string textColor: "white"
+    property string textColor: root.fg
     property string font: root.iconFont
 
     override default property alias data: container.data
