@@ -159,8 +159,6 @@ PanelWindow {
 
                         onClicked: {
                             root.shownTab = "notifications"
-                            console.log(notifications.trackedNotifications.values.length);
-                            //thing.count += 1;
                         }
                     }
                 }
@@ -405,6 +403,14 @@ PanelWindow {
 
                         spacing: 20
                         orientation: Qt.Vertical
+
+                        displaced: Transition {
+                            NumberAnimation {
+                                property: "y"
+                                duration: 300
+                                easing: Easing.OutExpo
+                            }
+                        }
 
                         delegate: Rectangle {
                             implicitWidth: 360
