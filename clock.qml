@@ -1,11 +1,13 @@
 import "./Icon.qml"
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Controls
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Services.Pipewire
 import Quickshell.Services.Mpris
 import Quickshell.Services.UPower
+import Quickshell.Services.Notifications
 import Quickshell.Hyprland
 
 //pragma ComponentBehaviour: Bound
@@ -24,10 +26,6 @@ PanelWindow {
     readonly property string bg_acc: "#2a2a40"
     readonly property string bg_acc1: "#36364a"
 
-    readonly property bool critical: UPower.onBattery && bat.percentage <= 0.152
-    readonly property bool charging: bat.changeRate > 10 && bat.percentage <= 0.952
-    readonly property UPowerDevice bat: UPower.displayDevice
-
     property string shownTab: "collapsed"
 
     readonly property bool collapsed: shownTab == "collapsed"
@@ -35,11 +33,29 @@ PanelWindow {
 
     component BatteryIcon: Icon {
         radius: 15
-        color: root.critical ? "#d90030" : root.charging ? "#0aa530" : root.bg_acc
+        color: critical ? "#d90030" : charging ? "#0aa530" : defaultColor
+
+        property string defaultColor: root.bg_acc
+
+        readonly property bool critical: UPower.onBattery && bat.percentage <= 0.152
+        readonly property bool charging: bat.changeRate > 10 && bat.percentage <= 0.952
+        readonly property UPowerDevice bat: UPower.displayDevice
 
         text: {
             const A = ["\uf244", "\uf243", "\uf242", "\uf241", "\uf240",];
             return A[Math.round(4 * bat.percentage)];
+        }
+    }
+
+    MouseArea {
+        anchors.fill: island
+        enabled: root.collapsed
+        visible: root.collapsed
+
+        cursorShape: Qt.PointingHandCursor
+
+        onClicked: {
+            root.shownTab = "controls";
         }
     }
 
@@ -55,6 +71,14 @@ PanelWindow {
 
         onCleared: {
             root.shownTab = "collapsed";
+        }
+    }
+
+    NotificationServer {
+        id: notifications
+
+        onNotification: notification => {
+            notification.tracked = true;
         }
     }
 
@@ -98,15 +122,16 @@ PanelWindow {
                     return 0;
                 else if (root.shownTab == "controls")
                     return 1;
+                else if (root.shownTab == "notifications")
+                    return 2;
             }
 
             // Idk why we need this here
-            height: root.expanded ? expandedContents.implicitHeight : collapsedContents.implicitHeight
-            width: root.expanded ? expandedContents.implicitWidth : collapsedContents.implicitWidth
+            height: children[currentIndex].implicitHeight
+            width: children[currentIndex].implicitWidth
 
             Item {
                 id: collapsedContents
-                anchors.centerIn: parent
                 implicitWidth: 200
                 implicitHeight: 40
 
@@ -118,13 +143,26 @@ PanelWindow {
                 Icon {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.left: parent.left
-                    anchors.leftMargin: 10
+                    anchors.leftMargin: 5
 
-                    text: "0"
+                    id: thing
+
+                    readonly property int count: notifications.trackedNotifications.values.length
+                    text: count
                     color: root.bg_acc
                     textColor: "#d0d0e0"
                     radius: 15
                     font: ""
+
+                    MouseArea {
+                        anchors.fill: parent
+
+                        onClicked: {
+                            root.shownTab = "notifications"
+                            console.log(notifications.trackedNotifications.values.length);
+                            //thing.count += 1;
+                        }
+                    }
                 }
 
                 RowLayout {
@@ -142,7 +180,7 @@ PanelWindow {
                 BatteryIcon {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.right: parent.right
-                    anchors.rightMargin: 10
+                    anchors.rightMargin: 5
                 }
             }
 
@@ -150,7 +188,6 @@ PanelWindow {
                 id: expandedContents
                 implicitWidth: 120 * 2 + 20 * 4 + 60
                 implicitHeight: 120 * 2 + 20 + 2 * 20
-                anchors.centerIn: parent
 
                 GridLayout {
                     id: grid
@@ -196,6 +233,8 @@ PanelWindow {
                             x: 20
                             y: 20
                             radius: 18
+
+                            defaultColor: root.bg_acc1
                         }
 
                         Text {
@@ -203,7 +242,7 @@ PanelWindow {
                             anchors.bottom: parent.bottom
                             anchors.bottomMargin: 20
 
-                            text: Math.round(root.bat.percentage * 100) + "%"
+                            text: Math.round(UPower.displayDevice.percentage * 100) + "%"
                             font.pixelSize: 16
                             color: "white"
                         }
@@ -271,7 +310,17 @@ PanelWindow {
                         }
 
                         Text {
-                            text: Mpris.players.values[0]?.trackTitle ?? "No MPRIS-enabled player"
+                            text: {
+                                let a = Mpris.players.values[0];
+
+                                if (a === undefined)
+                                    return "No MPRIS-enabled player"
+                                else if (a.playbackState == MprisPlaybackState.Stopped)
+                                    return "Stopped"
+                                else
+                                    return a.trackTitle
+                            }
+
                             font.pixelSize: 16
                             y: 20
                             anchors.horizontalCenter: parent.horizontalCenter
@@ -328,18 +377,74 @@ PanelWindow {
                     }
                 }
             }
-        }
-    }
 
-    MouseArea {
-        anchors.fill: island
-        enabled: root.collapsed
-        visible: root.collapsed
+            Item {
+                implicitWidth: 400
+                implicitHeight: 400
 
-        cursorShape: Qt.PointingHandCursor
+                Text {
+                    y: 50
+                    anchors.horizontalCenter: parent.horizontalCenter
 
-        onClicked: {
-            root.shownTab = "controls";
+                    visible: notifications.trackedNotifications.values.length == 0
+
+                    text: "No notifications :)"
+
+                    color: "white"
+                    font.pixelSize: 20
+                }
+
+                ScrollView {
+                    anchors.fill: parent
+                    anchors.margins: 20
+
+                    ListView {
+                        //model: notifications.trackedNotifications
+                        model: notifications.trackedNotifications
+                        anchors.fill: parent
+
+                        spacing: 20
+                        orientation: Qt.Vertical
+
+                        delegate: Rectangle {
+                            implicitWidth: 360
+                            implicitHeight: 110
+                            radius: 15
+                            color: root.bg_acc
+
+                            id: deleg
+
+                            required property Notification modelData
+
+                            ColumnLayout {
+                                anchors.top: parent.top
+                                anchors.left: parent.left
+                                anchors.margins: 10
+
+                                Text {
+                                    color: "white"
+                                    font.pixelSize: 18
+
+                                    text: deleg.modelData.summary
+                                }
+
+                                Text {
+                                    color: "white"
+                                    text: deleg.modelData.body
+                                }
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+
+                                onClicked: {
+                                    deleg.modelData.dismiss()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 

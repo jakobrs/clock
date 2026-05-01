@@ -11,12 +11,15 @@ WrapperItem {
     property string textColor: "white"
     property string font: root.iconFont
 
-    WrapperRectangle {
+    override default property alias data: container.data
+
+    Rectangle {
+        id: container
+
         color: icon_root.inverted ? icon_root.textColor : icon_root.color
         implicitHeight: 2 * icon_root.radius
         implicitWidth: 2 * icon_root.radius
         radius: icon_root.radius
-        //extraMargin: icon_root.extraMargin
 
         Text {
             anchors.centerIn: parent
