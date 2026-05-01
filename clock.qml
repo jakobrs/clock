@@ -94,6 +94,57 @@ PanelWindow {
     }
 
     ClippingRectangle {
+        id: volume_mini_display
+
+        radius: 15
+        color: root.bg
+
+        enabled: false
+        visible: enabled
+
+        property Timer disable_timer: Timer {
+            interval: 500
+            onTriggered: volume_mini_display.enabled = false
+        }
+
+        anchors.horizontalCenter: parent.horizontalCenter
+        height: 30
+        width: 150
+
+        y: 50
+
+        Text {
+            text: "\uf028"
+            color: root.fg
+            font: root.iconFont
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.left: parent.left
+            anchors.leftMargin: 7.5
+
+            z: 0
+        }
+
+        ClippingRectangle {
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            implicitWidth: (Pipewire.defaultAudioSink?.audio.volume ?? 0) * parent.width
+            color: root.fg
+
+            Text {
+                text: "\uf028"
+                color: root.bg_acc
+                font: root.iconFont
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.left: parent.left
+                anchors.leftMargin: 7.5
+
+                z: 0
+            }
+        }
+    }
+
+    ClippingRectangle {
         id: island
 
         radius: 20
@@ -476,5 +527,14 @@ PanelWindow {
 
     PwObjectTracker {
         objects: [Pipewire.defaultAudioSink]
+    }
+
+    Connections {
+        target: Pipewire.defaultAudioSink?.audio
+
+        onVolumeChanged: {
+            volume_mini_display.enabled = true;
+            volume_mini_display.disable_timer.restart();
+        }
     }
 }
