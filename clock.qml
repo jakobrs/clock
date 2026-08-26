@@ -372,22 +372,30 @@ PanelWindow {
                             return Mpris.players.values[0];
                         }
 
-                        Text {
-                            text: {
-                                let a = Mpris.players.values[0];
+                        // TODO: scroll?
+                        Item {
+                            anchors.fill: parent
+                            clip: true
+                            anchors.leftMargin: 20
+                            anchors.rightMargin: 20
 
-                                if (a === undefined)
-                                    return "No MPRIS-enabled player"
-                                else if (a.playbackState == MprisPlaybackState.Stopped)
-                                    return "Stopped"
-                                else
-                                    return a.trackTitle
+                            Text {
+                                text: {
+                                    let a = Mpris.players.values[0];
+
+                                    if (a === undefined)
+                                        return "No MPRIS-enabled players"
+                                    else if (a.playbackState == MprisPlaybackState.Stopped)
+                                        return "Stopped"
+                                    else
+                                        return a.trackTitle
+                                }
+
+                                font.pixelSize: 16
+                                y: 20
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                color: root.fg
                             }
-
-                            font.pixelSize: 16
-                            y: 20
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            color: root.fg
                         }
 
                         WrapperItem {
@@ -396,7 +404,8 @@ PanelWindow {
                             anchors.bottomMargin: 20
 
                             RowLayout {
-                                visible: mpris_ctl.player() !== undefined
+                                //visible: mpris_ctl.player() !== undefined
+                                visible: true
 
                                 spacing: 20
 
@@ -532,7 +541,7 @@ PanelWindow {
     Connections {
         target: Pipewire.defaultAudioSink?.audio
 
-        onVolumeChanged: {
+        function onVolumeChanged() {
             volume_mini_display.enabled = true;
             volume_mini_display.disable_timer.restart();
         }
