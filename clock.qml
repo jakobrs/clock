@@ -314,11 +314,14 @@ PanelWindow {
 
                         cursorShape: pressed ? Qt.SizeVerCursor : Qt.PointingHandCursor
 
-                        onClicked: {
-                            Pipewire.defaultAudioSink.audio.volume = (height - mouseY) / height;
+                        property real delta: 0
+
+                        onPressed: {
+                            // we need delta such that (height - mouseY) / height + delta = volume
+                            delta = Pipewire.defaultAudioSink.audio.volume - (height - mouseY) / height;
                         }
                         onPositionChanged: {
-                            Pipewire.defaultAudioSink.audio.volume = (height - mouseY) / height;
+                            Pipewire.defaultAudioSink.audio.volume = (height - mouseY) / height + delta;
                         }
 
                         ClippingRectangle {
