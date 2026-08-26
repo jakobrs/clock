@@ -8,6 +8,7 @@ import Quickshell.Services.Pipewire
 import Quickshell.Services.Mpris
 import Quickshell.Services.UPower
 import Quickshell.Services.Notifications
+import Quickshell.Networking
 import Quickshell.Hyprland
 
 //pragma ComponentBehaviour: Bound
@@ -263,24 +264,32 @@ PanelWindow {
                         radius: 15
                         color: root.bg_acc
 
-                        Icon {
-                            id: wifi_status_icon
-                            x: 20
-                            y: 20
-                            radius: 18
-                            color: root.bg_acc1
-                            text: ""
-                            inverted: true
-                        }
+                        Item {
+                            clip: true
+                            anchors.fill: parent
+                            anchors.margins: 20
 
-                        Text {
-                            x: 20
-                            anchors.bottom: parent.bottom
-                            anchors.bottomMargin: 20
+                            readonly property NetworkDevice device: Networking.devices.values[0];
 
-                            font.pixelSize: 16
-                            color: root.fg
-                            text: "eduroam"
+                            Icon {
+                                id: wifi_status_icon
+                                radius: 18
+                                color: root.bg_acc1
+                                text: ""
+                                inverted: parent.device.connected
+                            }
+
+                            Text {
+                                x: 20
+                                anchors.bottom: parent.bottom
+                                anchors.left: parent.left
+
+                                font.pixelSize: 16
+                                color: root.fg
+                                text: {
+                                    return parent.device.connected ? parent.device.networks.values[0].name : "not connected";
+                                }
+                            }
                         }
                     }
 
